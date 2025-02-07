@@ -1,0 +1,41 @@
+/* src/styles/Button.css */
+.btn {
+  padding: 10px 20px;
+  margin: 10px;
+  background-color: #ffffff00;
+  border: none;
+  color: white;
+  border-style: solid;
+  border-color: rgb(255, 255, 255);
+  border-width: 1px;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 10em;
+  height: auto;
+  font-size: 1.5em;
+}
+
+.btn:hover {
+  transition: 0.3s;
+  transform: scale(1.1);
+  background-color: #032f5f;
+}
+/* -- ADICIONAR AO FINAL DO SEU ARQUIVO Button.css -- */
+
+/* Responsividade para tablet (<= 768px) */
+@media (max-width: 768px) {
+  .btn {
+    width: 8em; /* ou 100%, dependendo do seu layout */
+    font-size: 1.2em;
+    margin: 5px; /* diminui as margens */
+  }
+}
+
+/* Responsividade para celular (<= 480px) */
+@media (max-width: 480px) {
+  .btn {
+    width: 100%;
+    font-size: 1em;
+    margin: 5px 0; /* margin superior e inferior */
+  }
+}

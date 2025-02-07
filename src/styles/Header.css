@@ -1,0 +1,51 @@
+/* src/styles/Header.css */
+.header {
+  margin: 3em;
+  text-align: center;
+  justify-content: center;
+  color: white;
+  margin-right: 3em;
+}
+
+.logo {
+  max-width: 400px;
+  height: auto;
+}
+.header h1 {
+  text-align: center;
+  width: 100%;
+  font-size: 1.8em;
+  border-bottom: 0.5px solid white;
+}
+/* -- ADICIONAR AO FINAL DO SEU ARQUIVO Header.css -- */
+
+/* Responsividade para tablet (<= 768px) */
+@media (max-width: 768px) {
+  .header {
+    margin: 1em;
+    text-align: center;
+  }
+
+  .header h1 {
+    font-size: 1.2em;
+  }
+
+  .logo {
+    max-width: 200px;
+  }
+}
+
+/* Responsividade para celular (<= 480px) */
+@media (max-width: 480px) {
+  .header {
+    margin: 0.5em;
+  }
+
+  .header h1 {
+    font-size: 1em;
+  }
+
+  .logo {
+    max-width: 150px;
+  }
+}

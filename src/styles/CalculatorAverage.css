@@ -1,0 +1,147 @@
+/* src/styles/CalculatorAverage.css */
+.calculator-average {
+  border-radius: 8px;
+  transition: 1s;
+  width: 100%;
+  color: #fff;
+
+  font-family: "Arial", sans-serif;
+}
+
+.calculator-average h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-weight: bold;
+}
+
+/* Agrupamento do formulário */
+.form-group {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  font-weight: 600;
+}
+
+/* Inputs de notas */
+.form-group input {
+  padding: 0.5rem;
+  border: none;
+  border-radius: 4px;
+
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 1rem;
+}
+
+.form-group input:focus {
+  outline: 2px solid #3f51b5;
+}
+
+/* Agrupamento dos botões */
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+/* Resultado da média */
+.result {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+/* -- ADICIONAR AO FINAL DO SEU ARQUIVO CalculatorAverage.css -- */
+
+/* Responsividade para tablet (<= 768px) */
+@media (max-width: 768px) {
+  .calculator-average {
+    font-size: 0.9rem;
+    padding: 0 1rem;
+  }
+
+  /* Ajusta o .form-group para ficar em uma coluna só */
+  .form-group {
+    display: grid;
+    grid-template-columns: 1fr; /* faz com que cada label/input ocupe 100% */
+    gap: 1rem;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+}
+
+/* Responsividade para celular (<= 480px) */
+@media (max-width: 480px) {
+  .calculator-average {
+    font-size: 0.85rem;
+    padding: 0 0.5rem;
+  }
+
+  .form-group input {
+    font-size: 0.9rem;
+    padding: 0.4rem;
+  }
+
+  .button-group {
+    gap: 0.5rem;
+  }
+
+  .result {
+    font-size: 1rem;
+  }
+}
+/* ===========================
+   ANIMAÇÃO E ESTILO GERAL
+   =========================== */
+.animated-result {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+
+  /* Animação de 'scale in' + fade */
+  animation: scaleIn 0.6s ease forwards;
+}
+
+@keyframes scaleIn {
+  0% {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  80% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ===========================
+   CORES DINÂMICAS
+   =========================== */
+.highlighted-average.red {
+  color: #ff4d4d; /* Vermelho vivo */
+}
+
+.highlighted-average.yellow {
+  color: #ffeb3b; /* Amarelo */
+}
+
+.highlighted-average.blue {
+  color: #2196f3; /* Azul */
+}
+
+.highlighted-average.green {
+  color: #00b81f; /* Dourado */
+}
+
+/* Caso queira alguma cor neutra para "gap" */
+.highlighted-average.neutral {
+  color: #ffffff;
+}

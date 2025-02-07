@@ -1,0 +1,50 @@
+/* src/App.css */
+
+/* Reset básico e estilos globais */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  /* Deixe a altura em auto para permitir crescer. 
+     Se quiser garantir que ocupe a tela cheia, use min-height em vez de height */
+  height: auto;
+  width: 100%;
+}
+
+body {
+  /* Remova o display flex do body, para permitir rolagem normal */
+  font-family: Arial, sans-serif;
+  color: #ffffff;
+  background-color: #040118;
+}
+
+/* Agora, o .app-body pode ter min-height: 100vh se quiser que
+   o fundo ocupe a tela inteira, mas sem cortar conteúdo. */
+.app-body {
+  /* min-height: 100vh garante ao menos uma tela cheia */
+  width: 100%; /* Substitua 150vh por 100% ou algo mais responsivo */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Se quiser centralizar horizontalmente */
+  justify-content: flex-start; /* Deixe o conteúdo começar de cima */
+  padding: 2rem; /* Ajuste para dar respiro no conteúdo */
+}
+
+/* Se houver algum container que você queira centralizar internamente,
+   você pode, mas tome cuidado com altura fixa. */
+.app-container {
+  transition: box-shadow 1s ease-in-out;
+  border-radius: 15px;
+  padding: 5px;
+  display: flex;
+  flex-direction: column; /* Se quiser empilhar elementos verticalmente */
+  align-items: center;
+  justify-content: center;
+  transition: 1s;
+  width: 100%;
+  max-width: 1200px;
+}

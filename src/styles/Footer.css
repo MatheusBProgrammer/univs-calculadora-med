@@ -1,0 +1,68 @@
+/* Footer.css */
+.main-footer {
+  background-color: transparent;
+  color: white;
+  padding: 1.5rem 4rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.9rem;
+  width: 100%;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.copyright,
+.institution,
+.contact {
+  flex: 1;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.institution {
+  font-weight: 500;
+}
+
+.contact {
+  white-space: nowrap;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .footer-content {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .main-footer {
+    padding: 1rem 2rem;
+  }
+
+  .copyright,
+  .institution,
+  .contact {
+    text-align: center;
+    width: 100%;
+  }
+
+  .contact {
+    white-space: normal;
+  }
+}
+/* -- JÁ EXISTEM REGRAS PARA <= 768px --
+   Adicione também para <= 480px se desejar -- */
+
+@media (max-width: 480px) {
+  .main-footer {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
+  .footer-content {
+    gap: 0.5rem;
+  }
+}
