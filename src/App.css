@@ -50,6 +50,6 @@ body {
 }
 @media (max-width: 768px) {
   .app-body {
-    min-height: 80vh;
+    min-height: 60vh;
   }
 }
