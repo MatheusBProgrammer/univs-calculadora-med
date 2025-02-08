@@ -6,7 +6,7 @@ const Footer = () => {
     <footer className="main-footer">
       <div className="footer-content">
         <span className="copyright">
-          Portal UniVS 1.0 - Copyright © Todos os direitos reservados
+          Portal UniVS 1.0 - Copyright © Todossss os direitos reservados
         </span>
 
         <span className="institution">

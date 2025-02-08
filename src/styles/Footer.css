@@ -66,3 +66,40 @@
     gap: 0.5rem;
   }
 }
+
+/* Responsividade para tablet (<= 768px) */
+@media (max-width: 768px) {
+  .main-footer {
+    padding: 1em;
+  }
+  .header {
+    margin: 1em;
+    text-align: center;
+  }
+
+  .header h1 {
+    font-size: 1.2em;
+  }
+
+  .logo {
+    max-width: 200px;
+  }
+}
+
+/* Responsividade para celular (<= 480px) */
+@media (max-width: 480px) {
+  .main-footer {
+    max-height: 5%;
+  }
+  .header {
+    margin: 0.5em;
+  }
+
+  .header h1 {
+    font-size: 1em;
+  }
+
+  .logo {
+    max-width: 150px;
+  }
+}

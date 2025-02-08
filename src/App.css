@@ -48,3 +48,8 @@ body {
   width: 100%;
   max-width: 1200px;
 }
+@media (max-width: 768px) {
+  .app-body {
+    min-height: 80vh;
+  }
+}
