@@ -50,6 +50,7 @@ body {
 }
 @media (max-width: 768px) {
   .app-body {
+    justify-content: end;
     min-height: 70vh;
   }
 }
