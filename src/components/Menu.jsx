@@ -14,7 +14,7 @@ const Menu = () => {
           rel="noopener noreferrer"
           className="social-icon"
         >
-          <FaFacebookF size="1.5em" color="#040118" />
+          <FaFacebookF size="1.3em" color="#535353" />
         </a>
 
         <a
@@ -23,7 +23,7 @@ const Menu = () => {
           rel="noopener noreferrer"
           className="social-icon"
         >
-          <IoLogoInstagram size="1.5em" color="#040118" />
+          <IoLogoInstagram size="1.3em" color="#535353" />
         </a>
 
         <a
@@ -32,7 +32,7 @@ const Menu = () => {
           rel="noopener noreferrer"
           className="social-icon"
         >
-          <FaYoutube size="1.5em" color="#040118" />
+          <FaYoutube size="1.3em" color="#535353" />
         </a>
 
         {/* Divisor visual */}
