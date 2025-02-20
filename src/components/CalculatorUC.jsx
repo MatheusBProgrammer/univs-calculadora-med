@@ -53,7 +53,7 @@ const CalculatorUC = ({ onBack }) => {
       const av3 = nAv3_1 * 0.6 + nAv3_2 * 0.4;
 
       // 2) Aplica os pesos das AVs (0.3, 0.3, 0.4)
-      const final = av1 * 0.3 + av2 * 0.3 + av3 * 0.4;
+      const final = av1 * 0.4 + av2 * 0.3 + av3 * 0.3;
 
       setFinalResult(final);
     }
@@ -74,7 +74,7 @@ const CalculatorUC = ({ onBack }) => {
 
       <div className="form-group">
         <div className="avGroup">
-          <label>Nota 1 da AV1:</label>
+          <label>Nota da avaliação Escrita da AV1:</label>
           <input
             type="number"
             min="0"
@@ -84,7 +84,7 @@ const CalculatorUC = ({ onBack }) => {
             onChange={(e) => handleInputChange(e, setAv1Note1)}
           />
 
-          <label>Nota 2 da AV1:</label>
+          <label>Nota da avaliação Formativa da AV1:</label>
           <input
             type="number"
             min="0"
@@ -96,7 +96,7 @@ const CalculatorUC = ({ onBack }) => {
         </div>
 
         <div className="avGroup">
-          <label>Nota 1 da AV2:</label>
+          <label>Nota da avaliação Escrita da AV2:</label>
           <input
             type="number"
             min="0"
@@ -106,7 +106,7 @@ const CalculatorUC = ({ onBack }) => {
             onChange={(e) => handleInputChange(e, setAv2Note1)}
           />
 
-          <label>Nota 2 da AV2:</label>
+          <label>Nota da avaliação Formativa da AV2:</label>
           <input
             type="number"
             min="0"
@@ -118,7 +118,7 @@ const CalculatorUC = ({ onBack }) => {
         </div>
 
         <div className="avGroup">
-          <label>Nota 1 da AV3:</label>
+          <label>Nota da avaliação Escrita da AV3:</label>
           <input
             type="number"
             min="0"
@@ -128,7 +128,7 @@ const CalculatorUC = ({ onBack }) => {
             onChange={(e) => handleInputChange(e, setAv3Note1)}
           />
 
-          <label>Nota 2 da AV3:</label>
+          <label>Nota da avaliação Formativa da da AV3:</label>
           <input
             type="number"
             min="0"
