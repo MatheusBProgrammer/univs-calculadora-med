@@ -20,6 +20,18 @@ const CalculatorUC = ({ onVoltar }) => {
   const [notaAv3Formativa, setNotaAv3Formativa] = useState("");
   const [resultadoFinal, setResultadoFinal] = useState(null);
 
+  // Pesos
+  const PESOS_AV = {
+    escrita: 0.6,
+    formativa: 0.4,
+  };
+
+  const PESOS_GERAIS = {
+    av1: 0.4,
+    av2: 0.3,
+    av3: 0.3,
+  };
+
   const tratarMudancaInput = (e, setNota) => {
     const valor = validarValor(e.target.value);
     setNota(valor);
@@ -41,21 +53,28 @@ const CalculatorUC = ({ onVoltar }) => {
       !isNaN(nAv3Escrita) &&
       !isNaN(nAv3Formativa)
     ) {
-      // 1) Calcula a média de cada AV (60/40)
-      const mediaAv1 = nAv1Escrita * 0.6 + nAv1Formativa * 0.4;
-      const mediaAv2 = nAv2Escrita * 0.6 + nAv2Formativa * 0.4;
-      const mediaAv3 = nAv3Escrita * 0.6 + nAv3Formativa * 0.4;
+      // 1) Aplica os pesos das avaliações escritas e formativas e calcula a média de cada AV
+      const mediaAv1 =
+        nAv1Escrita * PESOS_AV.escrita + nAv1Formativa * PESOS_AV.formativa;
 
-      // 2) Aplica os pesos das AVs (0.4, 0.3, 0.3)
-      const resultado = mediaAv1 * 0.4 + mediaAv2 * 0.3 + mediaAv3 * 0.3;
+      const mediaAv2 =
+        nAv2Escrita * PESOS_AV.escrita + nAv2Formativa * PESOS_AV.formativa;
+      const mediaAv3 =
+        nAv3Escrita * PESOS_AV.escrita + nAv3Formativa * PESOS_AV.formativa;
+
+      // 2) Aplica os pesos gerais das AVs e calcula o resultado final
+      const resultado =
+        mediaAv1 * PESOS_GERAIS.av1 +
+        mediaAv2 * PESOS_GERAIS.av2 +
+        mediaAv3 * PESOS_GERAIS.av3;
 
       setResultadoFinal(resultado);
     }
   };
 
   const obterCorPeloResultado = (valor) => {
-    if (valor < 6) return "red";
-    if (valor >= 6 && valor < 7) return "yellow";
+    if (valor < 7) return "red";
+    if (valor >= 7 && valor < 8) return "yellow";
     if (valor >= 8 && valor < 9) return "blue";
     if (valor >= 9 && valor <= 10) return "green";
     return "neutral";
