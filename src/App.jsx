@@ -38,10 +38,7 @@ const App = () => {
 
   return (
     <>
-      {/* Menu fixo no topo */}
       <Menu />
-
-      {/* Conteúdo principal */}
       <div className="app-body">
         <Header />
 
