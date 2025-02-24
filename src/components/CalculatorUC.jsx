@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import Button from "./Button";
 import "../styles/CalculatorUC.css";
 
+// ----------------------------------------------------------------------------
+// Função para validar e ajustar o valor digitado (0 a 10 ou vazio):
+// ----------------------------------------------------------------------------
 const validarValor = (valor) => {
   if (valor === "") return "";
   let valorNumerico = parseFloat(valor);
@@ -11,7 +14,9 @@ const validarValor = (valor) => {
   return valorNumerico;
 };
 
-// FUNÇÃO DE TRADUÇÃO PARA NOMES DE CAMPOS
+// ----------------------------------------------------------------------------
+// Traduz as chaves internas ("av1Escrita" etc.) para rótulos mais amigáveis.
+// ----------------------------------------------------------------------------
 const handleCampo = (campo) => {
   const traducoes = {
     av1Escrita: "AV1 Escrita",
@@ -24,8 +29,25 @@ const handleCampo = (campo) => {
   return traducoes[campo] || campo;
 };
 
+// ----------------------------------------------------------------------------
+// Pesos dos tipos de avaliações (escrita/formativa) e pesos gerais de cada AV.
+// ----------------------------------------------------------------------------
+const PESOS_AV = {
+  escrita: 0.6,
+  formativa: 0.4,
+};
+
+const PESOS_GERAIS = {
+  av1: 0.4,
+  av2: 0.3,
+  av3: 0.3,
+};
+
+// ----------------------------------------------------------------------------
+// COMPONENTE PRINCIPAL
+// ----------------------------------------------------------------------------
 const CalculatorUC = ({ onBack }) => {
-  // Estados de cada campo
+  // Estados de cada campo de nota
   const [notaAv1Escrita, setNotaAv1Escrita] = useState("");
   const [notaAv1Formativa, setNotaAv1Formativa] = useState("");
   const [notaAv2Escrita, setNotaAv2Escrita] = useState("");
@@ -33,32 +55,27 @@ const CalculatorUC = ({ onBack }) => {
   const [notaAv3Escrita, setNotaAv3Escrita] = useState("");
   const [notaAv3Formativa, setNotaAv3Formativa] = useState("");
 
+  // Estado para armazenar o resultado final (após arredondamento)
   const [resultadoFinal, setResultadoFinal] = useState(null);
 
+  // Mensagem exibida após cálculo ou simulação
   const [simulacaoMensagem, setSimulacaoMensagem] = useState("");
 
+  // Armazena mensagem de erro, se houver
   const [error, setError] = useState(null);
 
-  const handlerOnVoltar = () => {
-    onBack();
-  };
-
-  const PESOS_AV = {
-    escrita: 0.6,
-    formativa: 0.4,
-  };
-
-  const PESOS_GERAIS = {
-    av1: 0.4,
-    av2: 0.3,
-    av3: 0.3,
-  };
-
+  // ----------------------------------------------------------------------------
+  // Função auxiliar para atualizar estado de cada campo (com validação).
+  // ----------------------------------------------------------------------------
   const tratarMudancaInput = (e, setNota) => {
     const valor = validarValor(e.target.value);
     setNota(valor);
   };
 
+  // ----------------------------------------------------------------------------
+  // Cálculo de cada AV (ex.: AV1 = 0.6 * escrita + 0.4 * formativa).
+  // Se algum campo não estiver definido, converte para 0.
+  // ----------------------------------------------------------------------------
   const calcularMediaAV = (escrita, formativa) => {
     return (
       (parseFloat(escrita) || 0) * PESOS_AV.escrita +
@@ -66,8 +83,11 @@ const CalculatorUC = ({ onBack }) => {
     );
   };
 
+  // ----------------------------------------------------------------------------
+  // Somente retorna a média final SE todos os campos estiverem preenchidos.
+  // Caso contrário, retorna null.
+  // ----------------------------------------------------------------------------
   const obterMediaFinalSeCompleta = () => {
-    // Se qualquer campo estiver vazio, retorna null
     const campos = [
       notaAv1Escrita,
       notaAv1Formativa,
@@ -80,12 +100,12 @@ const CalculatorUC = ({ onBack }) => {
       return null;
     }
 
-    // Calcula cada média AV
+    // Calcula média de cada AV
     const mediaAv1 = calcularMediaAV(notaAv1Escrita, notaAv1Formativa);
     const mediaAv2 = calcularMediaAV(notaAv2Escrita, notaAv2Formativa);
     const mediaAv3 = calcularMediaAV(notaAv3Escrita, notaAv3Formativa);
 
-    // Combina usando os pesos gerais
+    // Aplica pesos gerais
     return (
       mediaAv1 * PESOS_GERAIS.av1 +
       mediaAv2 * PESOS_GERAIS.av2 +
@@ -93,6 +113,10 @@ const CalculatorUC = ({ onBack }) => {
     );
   };
 
+  // ----------------------------------------------------------------------------
+  // Arredondamento customizado: se parte decimal >= 0.95, sobe para o próximo inteiro.
+  // Ex.: 6.95 => 7, 7.94 => 7.94, mas 7.95 => 8.
+  // ----------------------------------------------------------------------------
   const aplicarArredondamento = (media) => {
     const parteDecimal = media - Math.floor(media);
     if (parteDecimal >= 0.95) {
@@ -101,8 +125,12 @@ const CalculatorUC = ({ onBack }) => {
     return media;
   };
 
+  // ----------------------------------------------------------------------------
+  // Retorna [parteFixa, coeficiente] para calcular "quanto preciso tirar"
+  // em um campo faltante para chegar a média 7.
+  // ----------------------------------------------------------------------------
   const getEquacaoFaltante = (campoFaltante) => {
-    // Converte para numérico ou 0 (se em branco)
+    // Converte cada campo para número ou 0 se estiver vazio
     const e1 = notaAv1Escrita === "" ? 0 : parseFloat(notaAv1Escrita);
     const f1 = notaAv1Formativa === "" ? 0 : parseFloat(notaAv1Formativa);
     const e2 = notaAv2Escrita === "" ? 0 : parseFloat(notaAv2Escrita);
@@ -110,7 +138,7 @@ const CalculatorUC = ({ onBack }) => {
     const e3 = notaAv3Escrita === "" ? 0 : parseFloat(notaAv3Escrita);
     const f3 = notaAv3Formativa === "" ? 0 : parseFloat(notaAv3Formativa);
 
-    // Primeiro, calculamos a parteFixa considerando que o campo faltante é zero naquele lugar
+    // Zera a nota do campo faltante e calcula as 3 AVs
     const av1 =
       (campoFaltante === "av1Escrita" ? 0 : e1) * PESOS_AV.escrita +
       (campoFaltante === "av1Formativa" ? 0 : f1) * PESOS_AV.formativa;
@@ -121,32 +149,30 @@ const CalculatorUC = ({ onBack }) => {
       (campoFaltante === "av3Escrita" ? 0 : e3) * PESOS_AV.escrita +
       (campoFaltante === "av3Formativa" ? 0 : f3) * PESOS_AV.formativa;
 
+    // Soma com os pesos gerais => parteFixa (tudo sem a nota faltante)
     let parteFixa =
       av1 * PESOS_GERAIS.av1 + av2 * PESOS_GERAIS.av2 + av3 * PESOS_GERAIS.av3;
 
-    // Agora descobrimos qual o coeficiente (quanto "pesa" 1 ponto na avaliação faltante)
+    // Determina o coeficiente (quanto vale 1 ponto no campo faltante)
     let coeficiente = 0;
     switch (campoFaltante) {
-      // av1
       case "av1Escrita":
-        coeficiente = PESOS_AV.escrita * PESOS_GERAIS.av1; // 0.6 * 0.4 = 0.24
+        coeficiente = PESOS_AV.escrita * PESOS_GERAIS.av1;
         break;
       case "av1Formativa":
-        coeficiente = PESOS_AV.formativa * PESOS_GERAIS.av1; // 0.4 * 0.4 = 0.16
+        coeficiente = PESOS_AV.formativa * PESOS_GERAIS.av1;
         break;
-      // av2
       case "av2Escrita":
-        coeficiente = PESOS_AV.escrita * PESOS_GERAIS.av2; // 0.6 * 0.3 = 0.18
+        coeficiente = PESOS_AV.escrita * PESOS_GERAIS.av2;
         break;
       case "av2Formativa":
-        coeficiente = PESOS_AV.formativa * PESOS_GERAIS.av2; // 0.4 * 0.3 = 0.12
+        coeficiente = PESOS_AV.formativa * PESOS_GERAIS.av2;
         break;
-      // av3
       case "av3Escrita":
-        coeficiente = PESOS_AV.escrita * PESOS_GERAIS.av3; // 0.6 * 0.3 = 0.18
+        coeficiente = PESOS_AV.escrita * PESOS_GERAIS.av3;
         break;
       case "av3Formativa":
-        coeficiente = PESOS_AV.formativa * PESOS_GERAIS.av3; // 0.4 * 0.3 = 0.12
+        coeficiente = PESOS_AV.formativa * PESOS_GERAIS.av3;
         break;
       default:
         coeficiente = 0;
@@ -155,14 +181,16 @@ const CalculatorUC = ({ onBack }) => {
     return [parteFixa, coeficiente];
   };
 
-  // --- BOTÃO CALCULAR ---
+  // ----------------------------------------------------------------------------
+  // BOTÃO: CALCULAR
+  // ----------------------------------------------------------------------------
   const calcularUC = () => {
     setSimulacaoMensagem("");
     setError(null);
 
-    const media = obterMediaFinalSeCompleta();
-
-    if (media === null) {
+    // 1) Calcula a média original (sem arredondar)
+    const mediaOriginal = obterMediaFinalSeCompleta();
+    if (mediaOriginal === null) {
       setResultadoFinal(null);
       setError(
         "Por favor, preencha todos os campos para calcular a média final."
@@ -170,40 +198,66 @@ const CalculatorUC = ({ onBack }) => {
       return;
     }
 
-    // Aplica arredondamento
-    const mediaArredondada = aplicarArredondamento(media);
+    // 2) Aplica o arredondamento customizado
+    const mediaArredondada = aplicarArredondamento(mediaOriginal);
+
+    // 3) Salva a média final no estado
     setResultadoFinal(mediaArredondada);
 
-    // Define mensagem de status
-    const mensagem = getMensagemResultadoFinal(mediaArredondada);
+    // 4) Define mensagem de status (Aprovado/Reprovado/AVF),
+    //    e se houve arredondamento, exibe na mensagem
+    const mensagem = getMensagemResultadoFinal(mediaOriginal, mediaArredondada);
     setSimulacaoMensagem(mensagem);
   };
 
-  // Retorna a mensagem de (Aprovado, Reprovado ou AVF) dada a média final
-  const getMensagemResultadoFinal = (mediaArredondada) => {
+  // ----------------------------------------------------------------------------
+  // Retorna a mensagem de (Aprovado, Reprovado ou AVF), considerando a
+  // média original e a média arredondada.
+  // ----------------------------------------------------------------------------
+  const getMensagemResultadoFinal = (mediaOriginal, mediaArredondada) => {
+    // Verifica se houve diferença
+    const houveArredondamento =
+      Math.abs(mediaArredondada - mediaOriginal) > 0.000001;
+
+    // Se >= 7 => Aprovado
     if (mediaArredondada >= 7) {
-      return `Aprovado! Sua média final é ${mediaArredondada.toFixed(2)}.`;
-    } else if (mediaArredondada < 4) {
-      return `Reprovado! Sua média final é ${mediaArredondada.toFixed(2)}.`;
-    } else {
-      const notaNecessaria = 12 - mediaArredondada;
-      return (
-        `Você irá para AVF! Sua média até agora é ${mediaArredondada.toFixed(
-          2
-        )}. ` +
-        `Para ser aprovado, precisa tirar pelo menos ${notaNecessaria.toFixed(
-          2
-        )} na AVF.`
-      );
+      if (houveArredondamento) {
+        // Ex.: 6.95 => 7.00
+        return (
+          `Aprovado! Sua média era ${mediaOriginal.toFixed(2)}, ` +
+          `mas foi arredondada para ${mediaArredondada.toFixed(2)}.`
+        );
+      } else {
+        // Não houve arredondamento extra
+        return `Aprovado! Sua média final é ${mediaArredondada.toFixed(2)}.`;
+      }
     }
+
+    // Se < 4 => Reprovado
+    if (mediaArredondada < 4) {
+      return `Reprovado! Sua média final é ${mediaArredondada.toFixed(2)}.`;
+    }
+
+    // Caso contrário => vai pra AVF
+    const notaNecessaria = 12 - mediaArredondada;
+    return (
+      `Você irá para AVF! Sua média até agora é ${mediaArredondada.toFixed(
+        2
+      )}. ` +
+      `Para ser aprovado, precisa tirar pelo menos ${notaNecessaria.toFixed(
+        2
+      )} na AVF.`
+    );
   };
 
-  // --- BOTÃO SIMULAR ---
+  // ----------------------------------------------------------------------------
+  // BOTÃO: SIMULAR
+  // ----------------------------------------------------------------------------
   const simularResultado = () => {
     setError(null);
     setResultadoFinal(null);
 
-    // Checa campos vazios
+    // Checa se há campos vazios
     const campos = {
       av1Escrita: notaAv1Escrita,
       av1Formativa: notaAv1Formativa,
@@ -217,18 +271,20 @@ const CalculatorUC = ({ onBack }) => {
       (key) => campos[key] === ""
     );
 
-    // Se não houver campos vazios, funciona como um "espelho" do Calcular
+    // Se nenhum campo estiver vazio, é como "Calcular" (sem erro)
     if (camposVazios.length === 0) {
-      const media = obterMediaFinalSeCompleta();
-      if (media !== null) {
-        const mediaArredondada = aplicarArredondamento(media);
+      const mediaOriginal = obterMediaFinalSeCompleta();
+      if (mediaOriginal !== null) {
+        const mediaArredondada = aplicarArredondamento(mediaOriginal);
         setResultadoFinal(mediaArredondada);
-        setSimulacaoMensagem(getMensagemResultadoFinal(mediaArredondada));
+        setSimulacaoMensagem(
+          getMensagemResultadoFinal(mediaOriginal, mediaArredondada)
+        );
       }
       return;
     }
 
-    // Se houver campos vazios, calcula quanto é preciso em cada um para chegar a média 7
+    // Caso haja campos vazios, calcula quanto falta em cada campo para atingir 7
     const mensagens = [];
 
     camposVazios.forEach((campo) => {
@@ -241,23 +297,24 @@ const CalculatorUC = ({ onBack }) => {
         return;
       }
 
+      // finalGrade >= 7 => parteFixa + (coef * X) >= 7 => X >= (7 - parteFixa) / coef
       const xNeces = (7 - parteFixa) / coef;
 
       if (xNeces <= 0) {
         mensagens.push(
-          `Para '${handleCampo(
+          `→ Para '${handleCampo(
             campo
           )}', 0 já é suficiente (você já atingiu ou ultrapassa a média 7).`
         );
       } else if (xNeces > 10) {
         mensagens.push(
-          `Para '${handleCampo(
+          `→ Para '${handleCampo(
             campo
           )}', mesmo tirando 10 não atinge média 7 (impossível).`
         );
       } else {
         mensagens.push(
-          `Para '${handleCampo(
+          `→ Para '${handleCampo(
             campo
           )}', você precisa tirar ao menos ${xNeces.toFixed(
             2
@@ -269,7 +326,9 @@ const CalculatorUC = ({ onBack }) => {
     setSimulacaoMensagem(mensagens.join("\n"));
   };
 
-  // Define a cor conforme a média final
+  // ----------------------------------------------------------------------------
+  // Define a cor visual da nota final
+  // ----------------------------------------------------------------------------
   const obterCorPeloResultado = (valor) => {
     if (valor < 7) return "red";
     if (valor >= 7 && valor < 8) return "yellow";
@@ -278,11 +337,15 @@ const CalculatorUC = ({ onBack }) => {
     return "neutral";
   };
 
+  // ----------------------------------------------------------------------------
+  // RENDERIZAÇÃO
+  // ----------------------------------------------------------------------------
   return (
     <div className="calculator-uc">
       <h2>Cálculo de UC's</h2>
 
       <div className="form-group">
+        {/* AV1 */}
         <div className="avGroup">
           <label>Nota da avaliação Escrita da AV1:</label>
           <input
@@ -293,7 +356,6 @@ const CalculatorUC = ({ onBack }) => {
             value={notaAv1Escrita}
             onChange={(e) => tratarMudancaInput(e, setNotaAv1Escrita)}
           />
-
           <label>Nota da avaliação Formativa da AV1:</label>
           <input
             type="number"
@@ -305,6 +367,7 @@ const CalculatorUC = ({ onBack }) => {
           />
         </div>
 
+        {/* AV2 */}
         <div className="avGroup">
           <label>Nota da avaliação Escrita da AV2:</label>
           <input
@@ -315,7 +378,6 @@ const CalculatorUC = ({ onBack }) => {
             value={notaAv2Escrita}
             onChange={(e) => tratarMudancaInput(e, setNotaAv2Escrita)}
           />
-
           <label>Nota da avaliação Formativa da AV2:</label>
           <input
             type="number"
@@ -327,6 +389,7 @@ const CalculatorUC = ({ onBack }) => {
           />
         </div>
 
+        {/* AV3 */}
         <div className="avGroup">
           <label>Nota da avaliação Escrita da AV3:</label>
           <input
@@ -337,7 +400,6 @@ const CalculatorUC = ({ onBack }) => {
             value={notaAv3Escrita}
             onChange={(e) => tratarMudancaInput(e, setNotaAv3Escrita)}
           />
-
           <label>Nota da avaliação Formativa da AV3:</label>
           <input
             type="number"
@@ -350,12 +412,14 @@ const CalculatorUC = ({ onBack }) => {
         </div>
       </div>
 
+      {/* Botões */}
       <div className="button-group">
         <Button onClick={calcularUC}>Calcular UC</Button>
         <Button onClick={simularResultado}>Simular</Button>
-        <Button onClick={handlerOnVoltar}>Voltar</Button>
+        <Button onClick={onBack}>Voltar</Button>
       </div>
 
+      {/* Erro (se algum) */}
       {error && (
         <p
           className="error"
@@ -370,6 +434,7 @@ const CalculatorUC = ({ onBack }) => {
         </p>
       )}
 
+      {/* Resultado Final (se calculado) */}
       {resultadoFinal !== null && (
         <div className="result animated-result">
           <h3>
@@ -385,6 +450,7 @@ const CalculatorUC = ({ onBack }) => {
         </div>
       )}
 
+      {/* Mensagem de simulação ou status final */}
       {simulacaoMensagem && (
         <div
           className="simulation-result"

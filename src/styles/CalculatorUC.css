@@ -15,12 +15,15 @@
 
 /* Agrupamento do formulário */
 .form-group {
-  display: grid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 1rem;
 }
 
 /* Cada "avGroup" terá uma borda branca para destacar */
 .avGroup {
+  width: 30%;
   border: 1px solid #fff;
   border-radius: 8px;
   padding: 1rem;
@@ -70,11 +73,13 @@
   }
 
   .form-group {
+    display: grid;
     grid-template-columns: 1fr; /* Cada avGroup fica em linha separada */
     gap: 1rem;
   }
 
   .avGroup {
+    width: 100%;
     gap: 0.8rem;
   }
 
