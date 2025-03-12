@@ -74,7 +74,7 @@ const CalculatorUC = ({ onBack }) => {
 
   // ----------------------------------------------------------------------------
   // Cálculo de cada AV (ex.: AV1 = 0.6 * escrita + 0.4 * formativa).
-  // Se algum campo não estiver definido, converte para 0.
+  // Se algum campo não estiver definido (string vazia), converte para 0.
   // ----------------------------------------------------------------------------
   const calcularMediaAV = (escrita, formativa) => {
     return (
@@ -127,9 +127,9 @@ const CalculatorUC = ({ onBack }) => {
 
   // ----------------------------------------------------------------------------
   // Retorna [parteFixa, coeficiente] para calcular "quanto preciso tirar"
-  // em um campo faltante para chegar a média 7.
+  // em um CAMPO faltante para chegar à média 7.
   // ----------------------------------------------------------------------------
-  const getEquacaoFaltante = (campoFaltante) => {
+  const getEquacaoFaltanteCampo = (campoFaltante) => {
     // Converte cada campo para número ou 0 se estiver vazio
     const e1 = notaAv1Escrita === "" ? 0 : parseFloat(notaAv1Escrita);
     const f1 = notaAv1Formativa === "" ? 0 : parseFloat(notaAv1Formativa);
@@ -142,9 +142,11 @@ const CalculatorUC = ({ onBack }) => {
     const av1 =
       (campoFaltante === "av1Escrita" ? 0 : e1) * PESOS_AV.escrita +
       (campoFaltante === "av1Formativa" ? 0 : f1) * PESOS_AV.formativa;
+
     const av2 =
       (campoFaltante === "av2Escrita" ? 0 : e2) * PESOS_AV.escrita +
       (campoFaltante === "av2Formativa" ? 0 : f2) * PESOS_AV.formativa;
+
     const av3 =
       (campoFaltante === "av3Escrita" ? 0 : e3) * PESOS_AV.escrita +
       (campoFaltante === "av3Formativa" ? 0 : f3) * PESOS_AV.formativa;
@@ -177,6 +179,57 @@ const CalculatorUC = ({ onBack }) => {
       default:
         coeficiente = 0;
     }
+
+    return [parteFixa, coeficiente];
+  };
+
+  // ----------------------------------------------------------------------------
+  // Retorna [parteFixa, coeficiente] para calcular quanto falta em uma AV
+  // COMPLETA (quando os dois campos estão vazios), para chegar à média 7.
+  // Aqui, "avFaltante" vai ser "av1", "av2" ou "av3" — e o valor resultante
+  // corresponderá ao valor de 0 a 10 daquela AV (já mesclando escrita e formativa).
+  // ----------------------------------------------------------------------------
+  const getEquacaoFaltanteAVCompleta = (avFaltante) => {
+    // Calcula a média das AVs que NÃO estão faltando (soma parcial).
+    // Av1, Av2, Av3 vão de 0 a 10 cada.
+    // Precisamos descobrir a quanto a AV faltante deve chegar (0 a 10).
+    //
+    //  final = (av1*g1 + av2*g2 + av3*g3) >= 7
+    //  se avFaltante = avX => avX*gX >= 7 - (somaDasOutrasAVs)
+    //  avX >= (7 - somaDasOutrasAVs) / gX
+
+    const e1 = notaAv1Escrita === "" ? 0 : parseFloat(notaAv1Escrita);
+    const f1 = notaAv1Formativa === "" ? 0 : parseFloat(notaAv1Formativa);
+    const e2 = notaAv2Escrita === "" ? 0 : parseFloat(notaAv2Escrita);
+    const f2 = notaAv2Formativa === "" ? 0 : parseFloat(notaAv2Formativa);
+    const e3 = notaAv3Escrita === "" ? 0 : parseFloat(notaAv3Escrita);
+    const f3 = notaAv3Formativa === "" ? 0 : parseFloat(notaAv3Formativa);
+
+    // AV1, AV2, AV3 reais (já calculadas) caso não estejam faltando por completo.
+    const av1 = calcularMediaAV(e1, f1);
+    const av2 = calcularMediaAV(e2, f2);
+    const av3 = calcularMediaAV(e3, f3);
+
+    // Soma parcial das AVs que NÃO são a faltante
+    let somaParcial = 0;
+    let pesoFaltante = 0; // peso geral da AV (g1, g2 ou g3)
+
+    if (avFaltante === "av1") {
+      somaParcial = av2 * PESOS_GERAIS.av2 + av3 * PESOS_GERAIS.av3;
+      pesoFaltante = PESOS_GERAIS.av1;
+    } else if (avFaltante === "av2") {
+      somaParcial = av1 * PESOS_GERAIS.av1 + av3 * PESOS_GERAIS.av3;
+      pesoFaltante = PESOS_GERAIS.av2;
+    } else if (avFaltante === "av3") {
+      somaParcial = av1 * PESOS_GERAIS.av1 + av2 * PESOS_GERAIS.av2;
+      pesoFaltante = PESOS_GERAIS.av3;
+    }
+
+    // Precisamos de avFaltante >= X para atingir 7 no final
+    // 7 <= somaParcial + avFaltante * pesoFaltante
+    // avFaltante >= (7 - somaParcial) / pesoFaltante
+    const parteFixa = somaParcial; // "já garantido" pelas outras AVs
+    const coeficiente = pesoFaltante; // factor que multiplica a AV faltante
 
     return [parteFixa, coeficiente];
   };
@@ -257,7 +310,19 @@ const CalculatorUC = ({ onBack }) => {
     setError(null);
     setResultadoFinal(null);
 
-    // Checa se há campos vazios
+    // Se TODOS os campos estiverem preenchidos, é equivalente a "CALCULAR"
+    const mediaOriginal = obterMediaFinalSeCompleta();
+    if (mediaOriginal !== null) {
+      // Já temos tudo preenchido
+      const mediaArredondada = aplicarArredondamento(mediaOriginal);
+      setResultadoFinal(mediaArredondada);
+      setSimulacaoMensagem(
+        getMensagemResultadoFinal(mediaOriginal, mediaArredondada)
+      );
+      return;
+    }
+
+    // Caso contrário, vamos verificar quais campos (ou AVs) estão em branco.
     const campos = {
       av1Escrita: notaAv1Escrita,
       av1Formativa: notaAv1Formativa,
@@ -267,63 +332,249 @@ const CalculatorUC = ({ onBack }) => {
       av3Formativa: notaAv3Formativa,
     };
 
-    const camposVazios = Object.keys(campos).filter(
-      (key) => campos[key] === ""
-    );
-
-    // Se nenhum campo estiver vazio, é como "Calcular" (sem erro)
-    if (camposVazios.length === 0) {
-      const mediaOriginal = obterMediaFinalSeCompleta();
-      if (mediaOriginal !== null) {
-        const mediaArredondada = aplicarArredondamento(mediaOriginal);
-        setResultadoFinal(mediaArredondada);
-        setSimulacaoMensagem(
-          getMensagemResultadoFinal(mediaOriginal, mediaArredondada)
-        );
-      }
-      return;
-    }
-
-    // Caso haja campos vazios, calcula quanto falta em cada campo para atingir 7
+    // Precisamos agrupar por AV:
+    // ex: se av1Escrita e av1Formativa AMBAS estiverem vazias, calculamos a AV1 inteira.
+    // caso só 1 campo esteja vazio, calculamos por campo mesmo.
     const mensagens = [];
 
-    camposVazios.forEach((campo) => {
-      const [parteFixa, coef] = getEquacaoFaltante(campo);
+    // Função auxiliar pra checar se ambos os campos de uma AV estão vazios
+    const ambosVazios = (nota1, nota2) => nota1 === "" && nota2 === "";
 
-      if (coef === 0) {
-        mensagens.push(
-          `Não foi possível simular para o campo ${handleCampo(campo)}.`
-        );
-        return;
-      }
-
-      // finalGrade >= 7 => parteFixa + (coef * X) >= 7 => X >= (7 - parteFixa) / coef
+    // ---- AV1 ----
+    if (ambosVazios(campos.av1Escrita, campos.av1Formativa)) {
+      // Calcula quanto precisa para AV1 inteira
+      const [parteFixa, coef] = getEquacaoFaltanteAVCompleta("av1");
       const xNeces = (7 - parteFixa) / coef;
 
       if (xNeces <= 0) {
         mensagens.push(
-          `→ Para '${handleCampo(
-            campo
-          )}', 0 já é suficiente (você já atingiu ou ultrapassa a média 7).`
+          `→ Para 'AV1', você já atingiu média ≥ 7 sem precisar de nota na AV1.`
         );
       } else if (xNeces > 10) {
         mensagens.push(
-          `→ Para '${handleCampo(
-            campo
-          )}', mesmo tirando 10 não atinge média 7 (impossível).`
+          `→ Para 'AV1', nem mesmo 10 seria suficiente para chegar a 7.`
         );
       } else {
         mensagens.push(
-          `→ Para '${handleCampo(
-            campo
-          )}', você precisa tirar ao menos ${xNeces.toFixed(
+          `→ Para 'AV1', você precisa de pelo menos ${xNeces.toFixed(
             2
-          )} para chegar em 7.`
+          )} (de 0 a 10) nesta avaliação.`
         );
       }
-    });
+    } else {
+      // Se somente um dos campos está vazio, calculamos campo a campo
+      if (campos.av1Escrita === "" && campos.av1Formativa !== "") {
+        const [parteFixa, coef] = getEquacaoFaltanteCampo("av1Escrita");
+        if (coef > 0) {
+          const xNeces = (7 - parteFixa) / coef;
+          if (xNeces <= 0) {
+            mensagens.push(
+              `→ Para '${handleCampo(
+                "av1Escrita"
+              )}', 0 já basta para chegar a 7.`
+            );
+          } else if (xNeces > 10) {
+            mensagens.push(
+              `→ Mesmo tirando 10 em '${handleCampo(
+                "av1Escrita"
+              )}', não chega a 7.`
+            );
+          } else {
+            mensagens.push(
+              `→ Para '${handleCampo(
+                "av1Escrita"
+              )}', precisa de ${xNeces.toFixed(2)}.`
+            );
+          }
+        }
+      }
 
-    setSimulacaoMensagem(mensagens.join("\n"));
+      if (campos.av1Formativa === "" && campos.av1Escrita !== "") {
+        const [parteFixa, coef] = getEquacaoFaltanteCampo("av1Formativa");
+        if (coef > 0) {
+          const xNeces = (7 - parteFixa) / coef;
+          if (xNeces <= 0) {
+            mensagens.push(
+              `→ Para '${handleCampo(
+                "av1Formativa"
+              )}', 0 já basta para chegar a 7.`
+            );
+          } else if (xNeces > 10) {
+            mensagens.push(
+              `→ Mesmo tirando 10 em '${handleCampo(
+                "av1Formativa"
+              )}', não chega a 7.`
+            );
+          } else {
+            mensagens.push(
+              `→ Para '${handleCampo(
+                "av1Formativa"
+              )}', precisa de ${xNeces.toFixed(2)}.`
+            );
+          }
+        }
+      }
+    }
+
+    // ---- AV2 ----
+    if (ambosVazios(campos.av2Escrita, campos.av2Formativa)) {
+      // Calcula quanto precisa para AV2 inteira
+      const [parteFixa, coef] = getEquacaoFaltanteAVCompleta("av2");
+      const xNeces = (7 - parteFixa) / coef;
+
+      if (xNeces <= 0) {
+        mensagens.push(
+          `→ Para 'AV2', você já atingiu média ≥ 7 sem precisar de nota na AV2.`
+        );
+      } else if (xNeces > 10) {
+        mensagens.push(
+          `→ Para 'AV2', nem mesmo 10 seria suficiente para chegar a 7.`
+        );
+      } else {
+        mensagens.push(
+          `→ Para 'AV2', você precisa de pelo menos ${xNeces.toFixed(
+            2
+          )} (de 0 a 10).`
+        );
+      }
+    } else {
+      // Se somente um dos campos está vazio, calculamos campo a campo
+      if (campos.av2Escrita === "" && campos.av2Formativa !== "") {
+        const [parteFixa, coef] = getEquacaoFaltanteCampo("av2Escrita");
+        if (coef > 0) {
+          const xNeces = (7 - parteFixa) / coef;
+          if (xNeces <= 0) {
+            mensagens.push(
+              `→ Para '${handleCampo(
+                "av2Escrita"
+              )}', 0 já basta para chegar a 7.`
+            );
+          } else if (xNeces > 10) {
+            mensagens.push(
+              `→ Mesmo tirando 10 em '${handleCampo(
+                "av2Escrita"
+              )}', não chega a 7.`
+            );
+          } else {
+            mensagens.push(
+              `→ Para '${handleCampo(
+                "av2Escrita"
+              )}', precisa de ${xNeces.toFixed(2)}.`
+            );
+          }
+        }
+      }
+
+      if (campos.av2Formativa === "" && campos.av2Escrita !== "") {
+        const [parteFixa, coef] = getEquacaoFaltanteCampo("av2Formativa");
+        if (coef > 0) {
+          const xNeces = (7 - parteFixa) / coef;
+          if (xNeces <= 0) {
+            mensagens.push(
+              `→ Para '${handleCampo(
+                "av2Formativa"
+              )}', 0 já basta para chegar a 7.`
+            );
+          } else if (xNeces > 10) {
+            mensagens.push(
+              `→ Mesmo tirando 10 em '${handleCampo(
+                "av2Formativa"
+              )}', não chega a 7.`
+            );
+          } else {
+            mensagens.push(
+              `→ Para '${handleCampo(
+                "av2Formativa"
+              )}', precisa de ${xNeces.toFixed(2)}.`
+            );
+          }
+        }
+      }
+    }
+
+    // ---- AV3 ----
+    if (ambosVazios(campos.av3Escrita, campos.av3Formativa)) {
+      // Calcula quanto precisa para AV3 inteira
+      const [parteFixa, coef] = getEquacaoFaltanteAVCompleta("av3");
+      const xNeces = (7 - parteFixa) / coef;
+
+      if (xNeces <= 0) {
+        mensagens.push(
+          `→ Para 'AV3', você já atingiu média ≥ 7 sem precisar de nota na AV3.`
+        );
+      } else if (xNeces > 10) {
+        mensagens.push(
+          `→ Para 'AV3', nem mesmo 10 seria suficiente para chegar a 7.`
+        );
+      } else {
+        mensagens.push(
+          `→ Para 'AV3', você precisa de pelo menos ${xNeces.toFixed(
+            2
+          )} (de 0 a 10).`
+        );
+      }
+    } else {
+      // Se somente um dos campos está vazio, calculamos campo a campo
+      if (campos.av3Escrita === "" && campos.av3Formativa !== "") {
+        const [parteFixa, coef] = getEquacaoFaltanteCampo("av3Escrita");
+        if (coef > 0) {
+          const xNeces = (7 - parteFixa) / coef;
+          if (xNeces <= 0) {
+            mensagens.push(
+              `→ Para '${handleCampo(
+                "av3Escrita"
+              )}', 0 já basta para chegar a 7.`
+            );
+          } else if (xNeces > 10) {
+            mensagens.push(
+              `→ Mesmo tirando 10 em '${handleCampo(
+                "av3Escrita"
+              )}', não chega a 7.`
+            );
+          } else {
+            mensagens.push(
+              `→ Para '${handleCampo(
+                "av3Escrita"
+              )}', precisa de ${xNeces.toFixed(2)}.`
+            );
+          }
+        }
+      }
+
+      if (campos.av3Formativa === "" && campos.av3Escrita !== "") {
+        const [parteFixa, coef] = getEquacaoFaltanteCampo("av3Formativa");
+        if (coef > 0) {
+          const xNeces = (7 - parteFixa) / coef;
+          if (xNeces <= 0) {
+            mensagens.push(
+              `→ Para '${handleCampo(
+                "av3Formativa"
+              )}', 0 já basta para chegar a 7.`
+            );
+          } else if (xNeces > 10) {
+            mensagens.push(
+              `→ Mesmo tirando 10 em '${handleCampo(
+                "av3Formativa"
+              )}', não chega a 7.`
+            );
+          } else {
+            mensagens.push(
+              `→ Para '${handleCampo(
+                "av3Formativa"
+              )}', precisa de ${xNeces.toFixed(2)}.`
+            );
+          }
+        }
+      }
+    }
+
+    // Exibe as mensagens resultantes
+    if (mensagens.length === 0) {
+      // Não foi possível simular nada de forma detalhada (caso bizarro).
+      setSimulacaoMensagem("Nenhuma simulação disponível.");
+    } else {
+      setSimulacaoMensagem(mensagens.join("\n"));
+    }
   };
 
   // ----------------------------------------------------------------------------
@@ -343,72 +594,79 @@ const CalculatorUC = ({ onBack }) => {
   return (
     <div className="calculator-uc">
       <h2>Cálculo de UC's</h2>
-
       <div className="form-group">
-        {/* AV1 */}
-        <div className="avGroup">
-          <label>Nota da avaliação Escrita da AV1:</label>
-          <input
-            type="number"
-            min="0"
-            max="10"
-            placeholder="0 a 10"
-            value={notaAv1Escrita}
-            onChange={(e) => tratarMudancaInput(e, setNotaAv1Escrita)}
-          />
-          <label>Nota da avaliação Formativa da AV1:</label>
-          <input
-            type="number"
-            min="0"
-            max="10"
-            placeholder="0 a 10"
-            value={notaAv1Formativa}
-            onChange={(e) => tratarMudancaInput(e, setNotaAv1Formativa)}
-          />
+        <div className="container-avGroup">
+          <h3>Sala de aula invertida (AV1)</h3>
+          <div className="avGroup">
+            <label>Nota da avaliação Escrita da AV1:</label>
+            <input
+              type="number"
+              min="0"
+              max="10"
+              placeholder="0 a 10"
+              value={notaAv1Escrita}
+              onChange={(e) => tratarMudancaInput(e, setNotaAv1Escrita)}
+            />
+            <label>Nota da avaliação Formativa da AV1:</label>
+            <input
+              type="number"
+              min="0"
+              max="10"
+              placeholder="0 a 10"
+              value={notaAv1Formativa}
+              onChange={(e) => tratarMudancaInput(e, setNotaAv1Formativa)}
+            />
+          </div>
         </div>
 
         {/* AV2 */}
-        <div className="avGroup">
-          <label>Nota da avaliação Escrita da AV2:</label>
-          <input
-            type="number"
-            min="0"
-            max="10"
-            placeholder="0 a 10"
-            value={notaAv2Escrita}
-            onChange={(e) => tratarMudancaInput(e, setNotaAv2Escrita)}
-          />
-          <label>Nota da avaliação Formativa da AV2:</label>
-          <input
-            type="number"
-            min="0"
-            max="10"
-            placeholder="0 a 10"
-            value={notaAv2Formativa}
-            onChange={(e) => tratarMudancaInput(e, setNotaAv2Formativa)}
-          />
+        <div className="container-avGroup">
+          <h3>Laboratório Morfofuncional (AV2)</h3>
+          <div className="avGroup">
+            <label>Nota da avaliação Escrita da AV2:</label>
+            <input
+              type="number"
+              min="0"
+              max="10"
+              placeholder="0 a 10"
+              value={notaAv2Escrita}
+              onChange={(e) => tratarMudancaInput(e, setNotaAv2Escrita)}
+            />
+            <label>Nota da avaliação Formativa da AV2:</label>
+            <input
+              type="number"
+              min="0"
+              max="10"
+              placeholder="0 a 10"
+              value={notaAv2Formativa}
+              onChange={(e) => tratarMudancaInput(e, setNotaAv2Formativa)}
+            />
+          </div>
         </div>
 
         {/* AV3 */}
-        <div className="avGroup">
-          <label>Nota da avaliação Escrita da AV3:</label>
-          <input
-            type="number"
-            min="0"
-            max="10"
-            placeholder="0 a 10"
-            value={notaAv3Escrita}
-            onChange={(e) => tratarMudancaInput(e, setNotaAv3Escrita)}
-          />
-          <label>Nota da avaliação Formativa da AV3:</label>
-          <input
-            type="number"
-            min="0"
-            max="10"
-            placeholder="0 a 10"
-            value={notaAv3Formativa}
-            onChange={(e) => tratarMudancaInput(e, setNotaAv3Formativa)}
-          />
+        <div className="container-avGroup">
+          <h3>Laboratório de práticas funcionais (AV3)</h3>
+          <div className="avGroup">
+            <label>Nota da avaliação Escrita da AV3:</label>
+            <input
+              type="number"
+              min="0"
+              max="10"
+              placeholder="0 a 10"
+              value={notaAv3Escrita}
+              onChange={(e) => tratarMudancaInput(e, setNotaAv3Escrita)}
+            />
+            <label>Nota da avaliação Formativa da AV3:</label>
+            <input
+              type="number"
+              min="0"
+              max="10"
+              placeholder="0 a 10"
+              value={notaAv3Formativa}
+              onChange={(e) => tratarMudancaInput(e, setNotaAv3Formativa)}
+            />
+          </div>
         </div>
       </div>
 

@@ -1,110 +1,112 @@
-/* src/styles/CalculatorAverage.css */
+/* ===========================
+   ESTILO PRINCIPAL
+   =========================== */
 .calculator-average {
-  border-radius: 8px;
-  transition: 1s;
   width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: #141414;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   color: #fff;
-
-  font-family: "Arial", sans-serif;
+  font-family: "Inter", sans-serif;
+  transition: all 0.3s ease-in-out;
 }
 
 .calculator-average h2 {
   text-align: center;
-  margin-bottom: 1rem;
-  font-weight: bold;
+  margin-bottom: 2rem;
+  font-weight: 700;
+  font-size: 2.2rem;
+  color: #fff;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 1rem;
 }
 
-/* Agrupamento do formulário */
+/* ===========================
+   AGRUPAMENTO DO FORMULÁRIO
+   =========================== */
 .form-group {
   display: grid;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .form-group label {
   font-weight: 600;
+  font-size: 1rem;
+  color: #fff;
+  margin-bottom: 0.5rem;
+  width: 100%;
 }
-
-/* Inputs de notas */
+.container-form {
+  text-align: center;
+}
+.container-form label {
+  padding: 1em;
+}
 .form-group input {
-  padding: 0.5rem;
-  border: none;
-  border-radius: 4px;
-
-  background-color: rgba(255, 255, 255, 0.1);
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.05);
   color: #fff;
   font-size: 1rem;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
 }
 
 .form-group input:focus {
-  outline: 2px solid #3f51b5;
+  outline: none;
+  border-color: #3f51b5;
+  background-color: rgba(63, 81, 181, 0.1);
 }
 
-/* Agrupamento dos botões */
+/* ===========================
+   BOTÕES
+   =========================== */
 .button-group {
   display: flex;
   justify-content: center;
-  gap: 1rem;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
 }
 
-/* Resultado da média */
+.button-group button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  background-color: #3f51b5;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.button-group button:hover {
+  background-color: #303f9f;
+  transform: translateY(-2px);
+}
+
+.button-group button:active {
+  transform: translateY(0);
+}
+
+/* ===========================
+   RESULTADO
+   =========================== */
 .result {
   text-align: center;
-  margin-top: 1rem;
-  font-size: 1.2rem;
-  font-weight: bold;
-}
-/* -- ADICIONAR AO FINAL DO SEU ARQUIVO CalculatorAverage.css -- */
-
-/* Responsividade para tablet (<= 768px) */
-@media (max-width: 768px) {
-  .calculator-average {
-    font-size: 0.9rem;
-    padding: 0 1rem;
-  }
-
-  /* Ajusta o .form-group para ficar em uma coluna só */
-  .form-group {
-    display: grid;
-    grid-template-columns: 1fr; /* faz com que cada label/input ocupe 100% */
-    gap: 1rem;
-  }
-
-  .button-group {
-    flex-direction: column;
-  }
+  margin-top: 2rem;
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1.6;
 }
 
-/* Responsividade para celular (<= 480px) */
-@media (max-width: 480px) {
-  .calculator-average {
-    font-size: 0.85rem;
-    padding: 0 0.5rem;
-  }
-
-  .form-group input {
-    font-size: 0.9rem;
-    padding: 0.4rem;
-  }
-
-  .button-group {
-    gap: 0.5rem;
-  }
-
-  .result {
-    font-size: 1rem;
-  }
-}
-/* ===========================
-   ANIMAÇÃO E ESTILO GERAL
-   =========================== */
 .animated-result {
-  text-align: center;
-  margin-top: 1rem;
-  font-size: 1.5rem;
-  font-weight: bold;
-
-  /* Animação de 'scale in' + fade */
   animation: scaleIn 0.6s ease forwards;
 }
 
@@ -123,25 +125,76 @@
 }
 
 /* ===========================
-   CORES DINÂMICAS
+   CORES DINÂMICAS PARA A MÉDIA
    =========================== */
 .highlighted-average.red {
-  color: #ff4d4d; /* Vermelho vivo */
+  color: #ff6b6b;
 }
-
 .highlighted-average.yellow {
-  color: #ffeb3b; /* Amarelo */
+  color: #ffd166;
 }
-
 .highlighted-average.blue {
-  color: #2196f3; /* Azul */
+  color: #64b5f6;
 }
-
 .highlighted-average.green {
-  color: #00b81f; /* Dourado */
+  color: #4ecdc4;
+}
+.highlighted-average.neutral {
+  color: #fff;
 }
 
-/* Caso queira alguma cor neutra para "gap" */
-.highlighted-average.neutral {
-  color: #ffffff;
+/* ===========================
+   RESPONSIVIDADE
+   =========================== */
+/* Tablet (<= 768px) */
+@media (max-width: 768px) {
+  .calculator-average {
+    padding: 1.5rem;
+  }
+
+  .form-group {
+    grid-template-columns: 1fr;
+  }
+
+  .form-group input {
+    width: 100%;
+  }
+
+  .button-group {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .button-group button {
+    width: 100%;
+  }
+
+  .result {
+    font-size: 1.2rem;
+  }
+}
+
+/* Celular (<= 480px) */
+@media (max-width: 480px) {
+  .calculator-average {
+    padding: 1rem;
+  }
+
+  .calculator-average h2 {
+    font-size: 1.8rem;
+  }
+
+  .form-group input {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .button-group button {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .result {
+    font-size: 1rem;
+  }
 }

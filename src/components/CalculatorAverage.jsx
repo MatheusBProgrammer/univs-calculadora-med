@@ -45,6 +45,7 @@ const CalculatorAverage = ({ onBack }) => {
       <h2>Cálculo de Média</h2>
 
       <div className="form-group">
+        <div className="container-form">
         <label>Nota da AV1:</label>
         <input
           type="number"
@@ -54,6 +55,8 @@ const CalculatorAverage = ({ onBack }) => {
           value={notaAv1}
           onChange={(e) => tratarMudancaNota(e, setNotaAv1)}
         />
+</div>
+<div className="container-form">
 
         <label>Nota da AV2:</label>
         <input
@@ -64,6 +67,8 @@ const CalculatorAverage = ({ onBack }) => {
           value={notaAv2}
           onChange={(e) => tratarMudancaNota(e, setNotaAv2)}
         />
+        </div>
+        <div className="container-form">
 
         <label>Nota da AV3:</label>
         <input
@@ -74,6 +79,7 @@ const CalculatorAverage = ({ onBack }) => {
           value={notaAv3}
           onChange={(e) => tratarMudancaNota(e, setNotaAv3)}
         />
+        </div>
       </div>
 
       <div className="button-group">

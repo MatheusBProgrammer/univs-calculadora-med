@@ -23,15 +23,17 @@ const App = () => {
   // Variants para animar entrada e saída
   const pageVariants = {
     initial: {
-      opacity: 0,
-      y: 100,
+opacity:1,
+      y: 50,
     },
     animate: {
-      opacity: 1,
+      opacity:1,
+
       y: 0,
     },
     exit: {
-      opacity: 0,
+      opacity:1,
+
       y: -100,
     },
   };
@@ -51,7 +53,7 @@ const App = () => {
               initial="initial"
               animate="animate"
               exit="exit"
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.1 }}
             >
               <CalculatorMenu onSelect={handleSelect} />
             </motion.div>
@@ -65,7 +67,7 @@ const App = () => {
               initial="initial"
               animate="animate"
               exit="exit"
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.1 }}
             >
               <CalculatorAverage onBack={handleBack} />
             </motion.div>
@@ -79,7 +81,7 @@ const App = () => {
               initial="initial"
               animate="animate"
               exit="exit"
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.1 }}
             >
               <CalculatorUC onBack={handleBack} />
             </motion.div>
